@@ -13,7 +13,7 @@ Constraint = dict[str, Any]
 @dataclass(frozen=True)
 class TeamFilter:
     kind: Literal["grew_up", "lived_eoy", "constant_col"]
-    value: str
+    value: Any
 
 
 @dataclass(frozen=True)
@@ -55,22 +55,22 @@ DEFAULT_GRID: list[GridRow] = [
     ),
     GridRow(
         row_id="r3",
-        team_label="Any trips: Nashville '23",
+        team_label="Attended '23 Nashville Trip",
         stat_title="FANTASY CHAMPION",
         stat_subtitle="ANYTIME (CONSTANT)",
         year_lo=2023,
         year_hi=2025,
-        team=TeamFilter("constant_col", "On 2023 Nashville Trip?"),
+        team=TeamFilter("constant_col", {"column": "On 2023 Nashville Trip?", "value": "Yes"}),
         constraint={"type": "constant_eq", "column": "Fantasy Championship?", "value": "Yes"},
     ),
     GridRow(
         row_id="r4",
-        team_label="Grew up: NH",
+        team_label="Major: Accounting",
         stat_title="SEASON COLLEGE QUOTES UNDER 40",
         stat_subtitle="FOR CHOSEN YEAR",
         year_lo=2018,
         year_hi=2022,
-        team=TeamFilter("grew_up", "NH"),
+        team=TeamFilter("constant_col", {"column": "Primary Major", "value": "Accounting"}),
         constraint={"type": "season_stat", "column": "College Quotes", "op": "<", "value": 40},
     ),
     GridRow(
@@ -100,9 +100,22 @@ def _team_ok_for_year(
     if team.kind == "lived_eoy":
         return str(row.get("Lived in (as of EOY)", "")).strip() == team.value
     if team.kind == "constant_col":
-        col = team.value
-        v = const_row.get(col)
-        return _norm_yes_or_str(v) == "Yes" or str(v).strip() == "Yes"
+        # TeamFilter("constant_col", "Column Name") -> expects "Yes" by default
+        # TeamFilter("constant_col", {"column": "...", "value": "..."}) -> explicit value
+        if isinstance(team.value, str):
+            col = team.value.strip()
+            expected = "Yes"
+        elif isinstance(team.value, dict):
+            col = str(team.value.get("column", "")).strip()
+            expected = team.value.get("value", "Yes")
+        else:
+            return False
+
+        if not col:
+            return False
+
+        got = const_row.get(col)
+        return _norm_yes_or_str(got) == _norm_yes_or_str(expected) or str(got).strip() == str(expected).strip()
     return False
 
 
