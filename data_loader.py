@@ -7,7 +7,7 @@ from pathlib import Path
 import pandas as pd
 
 
-DEFAULT_XLSX = Path(r"C:\Users\JakeR\Downloads\Game\Bulldyke Dataset.xlsx")
+DEFAULT_XLSX = Path(r"Bulldyke Dataset.xlsx")
 
 
 def _norm_yes(x: object) -> str | None:
