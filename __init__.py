@@ -1,0 +1,1 @@
+"""Bulldyke category grid."""
