@@ -32,21 +32,21 @@ DEFAULT_GRID: list[GridRow] = [
     GridRow(
         row_id="r1",
         team_label="Grew up: MA",
-        stat_title="SEASON FANTASY WINS OVER 7",
+        stat_title="Fantasy Champion",
         stat_subtitle="FOR CHOSEN YEAR",
-        year_lo=2020,
-        year_hi=2025,
+        year_lo=2018,
+        year_hi=2022,
         team=TeamFilter("grew_up", "MA"),
-        constraint={"type": "season_stat", "column": "Fantasy Wins", "op": ">", "value": 7},
+        constraint={"type": "constant_eq", "column": "Fantasy Championship?", "value": "Yes"},
     ),
     GridRow(
         row_id="r2",
-        team_label="Lived: Smithfield",
+        team_label="Played Ultimate",
         stat_title="MADE FANTASY PLAYOFFS",
-        stat_subtitle="SAME SEASON AS LOCATION",
+        stat_subtitle="FOR CHOSEN YEAR",
         year_lo=2017,
         year_hi=2021,
-        team=TeamFilter("lived_eoy", "Smithfield"),
+        team=TeamFilter("constant_col", {"column": "Played Ultimate", "value": "Yes"}),
         constraint={
             "type": "same_season_yoy",
             "column": "Made Fantasy Playoffs",
@@ -55,36 +55,36 @@ DEFAULT_GRID: list[GridRow] = [
     ),
     GridRow(
         row_id="r3",
-        team_label="Attended '23 Nashville Trip",
+        team_label="Attended '20 Daytona Trip",
         stat_title="FANTASY CHAMPION",
         stat_subtitle="ANYTIME (CONSTANT)",
         year_lo=2023,
         year_hi=2025,
-        team=TeamFilter("constant_col", {"column": "On 2023 Nashville Trip?", "value": "Yes"}),
+        team=TeamFilter("constant_col", {"column": "On 2020 Daytona Trip?", "value": "Yes"}),
         constraint={"type": "constant_eq", "column": "Fantasy Championship?", "value": "Yes"},
     ),
     GridRow(
         row_id="r4",
-        team_label="Major: Accounting",
-        stat_title="SEASON COLLEGE QUOTES UNDER 40",
+        team_label="Has Not Won Survivor",
+        stat_title="SEASON COLLEGE QUOTES OVER 15",
         stat_subtitle="FOR CHOSEN YEAR",
-        year_lo=2018,
-        year_hi=2022,
-        team=TeamFilter("constant_col", {"column": "Primary Major", "value": "Accounting"}),
-        constraint={"type": "season_stat", "column": "College Quotes", "op": "<", "value": 40},
+        year_lo=2016,
+        year_hi=2020,
+        team=TeamFilter("constant_col", {"column": "Survivor Winner?", "value": "No"}),
+        constraint={"type": "season_stat", "column": "College Quotes", "op": ">", "value": 15},
     ),
     GridRow(
         row_id="r5",
-        team_label="Grew up: CT",
-        stat_title="MADE FANTASY PLAYOFFS",
+        team_label="Does Not Have Dog",
+        stat_title="Is Not Married (as of EOY)",
         stat_subtitle="SAME SEASON (YoY)",
         year_lo=2025,
         year_hi=2025,
-        team=TeamFilter("grew_up", "CT"),
+        team=TeamFilter("constant_col", {"column": "Has Dog?", "value": "No"}),
         constraint={
             "type": "same_season_yoy",
-            "column": "Made Fantasy Playoffs",
-            "value": "Yes",
+            "column": "Marital Status (as of EOY)",
+            "value": "Not Married",
         },
     ),
 ]
@@ -211,9 +211,9 @@ def validate_pick(
     else:
         return False, f"Unknown constraint {ctype}", 0.0
 
-    score = float(season_row["Reg Season Fantasy PF"])
+    score = float(season_row["Fantasy Wins"])
     return True, "Valid pick.", score
 
 
 def score_label() -> str:
-    return "REG SEASON FANTASY PF (CHOSEN YEAR)"
+    return "Fantasy Wins (CHOSEN YEAR)"
